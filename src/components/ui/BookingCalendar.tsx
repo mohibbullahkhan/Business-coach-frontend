@@ -56,12 +56,35 @@ export function BookingCalendar() {
     setSelectedTime(null);
   };
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate API call to backend
-    setTimeout(() => {
-      setStep("success");
-    }, 800);
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          notes: formData.notes,
+          date: selectedDate?.toLocaleDateString(),
+          time: selectedTime,
+          program: "Discovery Call"
+        })
+      });
+      if (res.ok) {
+        setStep("success");
+      } else {
+        alert("Failed to submit booking. Please try again.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -249,9 +272,10 @@ export function BookingCalendar() {
               <div className="mt-auto pt-6 flex justify-end">
                 <button 
                   type="submit"
-                  className="bg-accent text-white px-8 py-3.5 rounded-xl font-semibold shadow-md hover:bg-[#b56529] transition-colors"
+                  disabled={isSubmitting}
+                  className="bg-accent text-white px-8 py-3.5 rounded-xl font-semibold shadow-md hover:bg-[#b56529] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  Schedule Event
+                  {isSubmitting ? "Scheduling..." : "Schedule Event"}
                 </button>
               </div>
             </form>

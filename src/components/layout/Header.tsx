@@ -22,6 +22,8 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  if (pathname?.startsWith('/admin')) return null;
+
   useEffect(() => {
     return scrollY.on("change", (latest) => {
       setIsScrolled(latest > 20);

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 const FOOTER_LINKS = {
   "Quick Links": [
@@ -36,11 +37,14 @@ const FOOTER_LINKS = {
 };
 
 export function Footer() {
+  const pathname = usePathname();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const toggleSection = (category: string) => {
     setOpenSections(prev => ({ ...prev, [category]: !prev[category] }));
   };
+
+  if (pathname?.startsWith('/admin')) return null;
 
   return (
     <footer className="bg-[#FAF8F5] pt-12 pb-8">
