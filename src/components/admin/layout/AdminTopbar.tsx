@@ -1,10 +1,10 @@
 'use client'
 import { usePathname } from 'next/navigation'
-import { Search } from 'lucide-react'
+import { Search, Menu } from 'lucide-react'
 import NotificationBell from '../ui/NotificationBell'
 import toast from 'react-hot-toast'
 
-export default function AdminTopbar() {
+export default function AdminTopbar({ onMenuClick }: { onMenuClick: () => void }) {
   const pathname = usePathname()
   
   const getPageTitle = () => {
@@ -21,11 +21,19 @@ export default function AdminTopbar() {
   }
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10">
-      <h1 className="text-xl font-semibold text-gray-900">{getPageTitle()}</h1>
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 shrink-0 z-10">
+      <div className="flex items-center gap-3">
+        <button 
+          onClick={onMenuClick}
+          className="p-2 -ml-2 rounded-lg text-gray-500 hover:bg-gray-100 lg:hidden"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <h1 className="text-lg lg:text-xl font-semibold text-gray-900 truncate max-w-[120px] sm:max-w-none">{getPageTitle()}</h1>
+      </div>
       
-      <div className="flex items-center gap-6">
-        <div className="relative">
+      <div className="flex items-center gap-3 sm:gap-6">
+        <div className="relative hidden md:block">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input 
             type="text" 
@@ -36,13 +44,13 @@ export default function AdminTopbar() {
         
         <NotificationBell />
         
-        <div className="h-8 w-px bg-gray-200"></div>
+        <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
         
         <div className="flex items-center gap-3 cursor-pointer group" onClick={handleSignOut}>
-          <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-medium text-sm">
+          <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-medium text-sm shrink-0">
             JD
           </div>
-          <div className="text-sm">
+          <div className="text-sm hidden sm:block">
             <p className="font-medium text-gray-900 group-hover:text-blue-600">Jane Doe</p>
             <p className="text-gray-500 text-xs">Admin</p>
           </div>
