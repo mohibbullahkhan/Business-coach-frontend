@@ -2,15 +2,29 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Lock, Mail, Eye, EyeOff, ArrowLeft, KeyRound } from 'lucide-react'
+import {
+  useLoginMutation,
+  useForgotPasswordMutation,
+  useVerifyOtpMutation,
+  useResetPasswordMutation,
+} from '@/lib/api/authApi'
+import { useDispatch } from 'react-redux'
+import { setCredentials } from '@/features/auth/authSlice'
+import { ApiError } from '@/types/api'
 
 type AuthView = 'LOGIN' | 'FORGOT_PASSWORD' | 'VERIFY_OTP' | 'RESET_PASSWORD'
 
 export default function LoginPage() {
   const router = useRouter()
+  const dispatch = useDispatch()
+  
+  const [loginMutation, { isLoading: isLoginLoading }] = useLoginMutation()
+  const [forgotPasswordMutation, { isLoading: isForgotLoading }] = useForgotPasswordMutation()
+  const [verifyOtpMutation, { isLoading: isVerifyLoading }] = useVerifyOtpMutation()
+  const [resetPasswordMutation, { isLoading: isResetLoading }] = useResetPasswordMutation()
   
   // View State
   const [view, setView] = useState<AuthView>('LOGIN')
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -29,85 +43,53 @@ export default function LoginPage() {
     setSuccess('')
   }
 
+  const getErrorMessage = (err: any): string => {
+    if (err?.data?.message) return err.data.message
+    if (err?.error) return err.error
+    return 'An unexpected error occurred.'
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     clearMessages()
-    setIsLoading(true)
     
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      })
-      
-      const data = await res.json().catch(() => ({}))
-      
-      if (res.ok) {
-        // Store JWT token (assuming backend returns { token: '...' })
-        if (data.token) localStorage.setItem('cf_token', data.token)
-        localStorage.setItem('cf_admin_authed', 'true')
+      const res = await loginMutation({ email, password }).unwrap()
+      if (res.success && res.data) {
+        dispatch(setCredentials({ token: res.data.token, user: res.data.admin || res.data.user }))
         router.push('/admin')
-      } else {
-        setError(data.error || 'Invalid credentials')
       }
-    } catch (err) {
-      setError('An error occurred while logging in. Is the backend running?')
-    } finally {
-      setIsLoading(false)
+    } catch (err: any) {
+      setError(getErrorMessage(err))
     }
   }
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     clearMessages()
-    setIsLoading(true)
     
     try {
-      const res = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      })
-      
-      const data = await res.json().catch(() => ({}))
-      
-      if (res.ok) {
+      const res = await forgotPasswordMutation({ email }).unwrap()
+      if (res.success) {
         setSuccess('A 6-digit OTP has been sent to your email.')
         setView('VERIFY_OTP')
-      } else {
-        setError(data.error || 'Failed to send OTP')
       }
-    } catch (err) {
-      setError('An error occurred. Is the backend running?')
-    } finally {
-      setIsLoading(false)
+    } catch (err: any) {
+      setError(getErrorMessage(err))
     }
   }
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     clearMessages()
-    setIsLoading(true)
     
     try {
-      const res = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp })
-      })
-      
-      const data = await res.json().catch(() => ({}))
-      
-      if (res.ok) {
+      const res = await verifyOtpMutation({ email, otp }).unwrap()
+      if (res.success) {
         setView('RESET_PASSWORD')
-      } else {
-        setError(data.error || 'Invalid OTP. Please try again.')
       }
-    } catch (err) {
-      setError('An error occurred. Is the backend running?')
-    } finally {
-      setIsLoading(false)
+    } catch (err: any) {
+      setError(getErrorMessage(err))
     }
   }
 
@@ -119,33 +101,22 @@ export default function LoginPage() {
       return setError('Passwords do not match.')
     }
     
-    setIsLoading(true)
-    
     try {
-      const res = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp, newPassword })
-      })
-      
-      const data = await res.json().catch(() => ({}))
-      
-      if (res.ok) {
+      const res = await resetPasswordMutation({ email, otp, newPassword }).unwrap()
+      if (res.success) {
         setSuccess('Password successfully reset! You can now login.')
         setPassword('')
         setNewPassword('')
         setConfirmPassword('')
         setOtp('')
         setView('LOGIN')
-      } else {
-        setError(data.error || 'Failed to reset password')
       }
-    } catch (err) {
-      setError('An error occurred. Is the backend running?')
-    } finally {
-      setIsLoading(false)
+    } catch (err: any) {
+      setError(getErrorMessage(err))
     }
   }
+
+  const isLoading = isLoginLoading || isForgotLoading || isVerifyLoading || isResetLoading
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

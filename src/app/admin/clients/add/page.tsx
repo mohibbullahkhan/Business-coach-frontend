@@ -4,29 +4,37 @@ import { useRouter } from 'next/navigation'
 import PageHeader from '@/components/admin/ui/PageHeader'
 import toast from 'react-hot-toast'
 import { CreateClientDto, ProgramTier, ClientStatus } from '@/types/admin'
+import { useCreateClientMutation } from '@/lib/api/clientsApi'
 
 export default function AddClientPage() {
   const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [createClient, { isLoading: isSubmitting }] = useCreateClientMutation()
+  
   const [formData, setFormData] = useState<CreateClientDto>({
     name: '',
     email: '',
-    program: '1on1',
+    program: 'oneonone',
     status: 'active',
     startDate: new Date().toISOString().split('T')[0],
     goals: [],
     notes: ''
   })
+  
+  const [avatarFile, setAvatarFile] = useState<File | undefined>(undefined)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
-    
-    // Simulate RTK Query Mutation
-    setTimeout(() => {
-      toast.success('Client added successfully!')
-      router.push('/admin/clients')
-    }, 800)
+    try {
+      const res = await createClient({ data: formData, avatar: avatarFile }).unwrap()
+      if (res.success) {
+        toast.success('Client added successfully!')
+        router.push('/admin/clients')
+      } else {
+        toast.error(res.message || 'Failed to add client')
+      }
+    } catch (err: any) {
+      toast.error(err.data?.message || err.message || 'Failed to add client')
+    }
   }
 
   return (
@@ -64,6 +72,19 @@ export default function AddClientPage() {
               />
             </div>
           </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Avatar (Optional)</label>
+            <input 
+              type="file" 
+              accept="image/png, image/jpeg, image/webp"
+              onChange={e => {
+                if (e.target.files && e.target.files.length > 0) {
+                  setAvatarFile(e.target.files[0])
+                }
+              }}
+              className="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 py-2.5 px-3 border"
+            />
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -76,7 +97,7 @@ export default function AddClientPage() {
                 onChange={e => setFormData({...formData, program: e.target.value as ProgramTier})}
                 className="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 py-2.5 px-3 border bg-white"
               >
-                <option value="1on1">1-on-1 Coaching</option>
+                <option value="oneonone">1-on-1 Coaching</option>
                 <option value="group">Group Coaching</option>
                 <option value="course">Video Course</option>
               </select>

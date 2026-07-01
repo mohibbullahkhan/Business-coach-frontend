@@ -4,6 +4,7 @@ import "./globals.css";
 import { GsapProvider } from "@/components/providers/GsapProvider";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { StoreProvider } from "@/components/providers/StoreProvider";
 
 export const metadata: Metadata = {
   title: "Clarity Finance | Take Control of Your Finances",
@@ -21,11 +22,13 @@ export default function RootLayout({
       className="h-full antialiased"
     >
       <body className="font-sans antialiased text-text-dark bg-bg-cream overflow-x-hidden">
-        <GsapProvider>
-          <Header />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-        </GsapProvider>
+        <StoreProvider>
+          <GsapProvider>
+            <Header />
+            <main className="min-h-screen">{children}</main>
+            <Footer />
+          </GsapProvider>
+        </StoreProvider>
       </body>
     </html>
   );

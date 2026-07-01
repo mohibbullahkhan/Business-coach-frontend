@@ -13,12 +13,12 @@ import toast from 'react-hot-toast'
 
 // INITIAL MOCK DATA
 const initialClients = [
-  { id: '1', name: 'Sarah Jenkins', email: 'sarah.j@example.com', program: '1on1', status: 'active', startDate: '2023-10-15', avatar: 'https://i.pravatar.cc/150?u=1' },
+  { id: '1', name: 'Sarah Jenkins', email: 'sarah.j@example.com', program: 'oneonone', status: 'active', startDate: '2023-10-15', avatar: 'https://i.pravatar.cc/150?u=1' },
   { id: '2', name: 'Michael Chang', email: 'm.chang@example.com', program: 'group', status: 'active', startDate: '2024-01-10', avatar: 'https://i.pravatar.cc/150?u=2' },
-  { id: '3', name: 'Emma Watson', email: 'emma.w@example.com', program: '1on1', status: 'paused', startDate: '2023-08-22', avatar: 'https://i.pravatar.cc/150?u=3' },
+  { id: '3', name: 'Emma Watson', email: 'emma.w@example.com', program: 'oneonone', status: 'paused', startDate: '2023-08-22', avatar: 'https://i.pravatar.cc/150?u=3' },
   { id: '4', name: 'David Miller', email: 'davidm@example.com', program: 'course', status: 'completed', startDate: '2023-05-01', avatar: 'https://i.pravatar.cc/150?u=4' },
   { id: '5', name: 'Olivia Parker', email: 'olivia.p@example.com', program: 'group', status: 'active', startDate: '2024-02-15', avatar: 'https://i.pravatar.cc/150?u=5' },
-  { id: '6', name: 'James Wilson', email: 'j.wilson@example.com', program: '1on1', status: 'lead', startDate: '-', avatar: 'https://i.pravatar.cc/150?u=6' },
+  { id: '6', name: 'James Wilson', email: 'j.wilson@example.com', program: 'oneonone', status: 'lead', startDate: '-', avatar: 'https://i.pravatar.cc/150?u=6' },
   { id: '7', name: 'Sophia Chen', email: 'schen@example.com', program: 'course', status: 'active', startDate: '2024-03-01', avatar: 'https://i.pravatar.cc/150?u=7' },
 ]
 

@@ -2,8 +2,11 @@
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import AdminLayout from '@/components/admin/layout/AdminLayout'
-import StoreProvider from '@/app/StoreProvider'
 import { Toaster } from 'react-hot-toast'
+import { useGetMeQuery } from '@/lib/api/authApi'
+import { useSelector, useDispatch } from 'react-redux'
+import { RootState } from '@/store'
+import { logout } from '@/features/auth/authSlice'
 
 export default function AdminRootLayout({
   children,
@@ -12,31 +15,49 @@ export default function AdminRootLayout({
 }) {
   const router = useRouter()
   const pathname = usePathname()
-  const [isAuthorized, setIsAuthorized] = useState(false)
+  const dispatch = useDispatch()
+  
+  const token = useSelector((state: RootState) => state.auth.token)
+  
+  const { data, isLoading, isError } = useGetMeQuery(undefined, {
+    skip: !token,
+  })
 
   useEffect(() => {
-    // TODO: Replace with NextAuth session check (Auth disabled for now as requested)
-    setIsAuthorized(true)
-  }, [pathname, router])
+    if (!token) {
+      router.push('/login')
+    }
+  }, [token, router])
 
-  if (!isAuthorized) {
-    return null // or a loading spinner
+  useEffect(() => {
+    if (isError) {
+      dispatch(logout())
+      router.push('/login')
+    }
+  }, [isError, dispatch, router])
+
+  if (!token || isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <p className="text-gray-500">Loading admin session...</p>
+      </div>
+    )
   }
 
-  // If it's the login page, don't wrap it in the AdminLayout sidebar/topbar shell
+  // Ensure login isn't inside admin layout but /login is handled at Root level anyway
   if (pathname === '/admin/login') {
     return (
-      <StoreProvider>
+      <>
         {children}
         <Toaster position="top-right" />
-      </StoreProvider>
+      </>
     )
   }
 
   return (
-    <StoreProvider>
+    <>
       <AdminLayout>{children}</AdminLayout>
       <Toaster position="top-right" />
-    </StoreProvider>
+    </>
   )
 }

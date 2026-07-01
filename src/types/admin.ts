@@ -2,7 +2,7 @@ export type ClientStatus = 'active' | 'paused' | 'completed' | 'lead'
 export type LeadStage = 'new' | 'contacted' | 'call_scheduled' | 'proposal_sent' | 'converted' | 'lost'
 export type PostStatus = 'draft' | 'published' | 'scheduled'
 export type PaymentStatus = 'paid' | 'pending' | 'overdue'
-export type ProgramTier = '1on1' | 'group' | 'course'
+export type ProgramTier = 'oneonone' | 'group' | 'course'
 
 export interface Client {
   id: string
